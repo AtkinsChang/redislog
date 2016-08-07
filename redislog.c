@@ -1041,18 +1041,26 @@ redis_log_hook(ErrorData *edata)
 		{
 		case FIELD_USER_NAME:
 			/* Username */
-			if (MyProcPort)
+			if (MyProcPort) {
+				const char *username = MyProcPort->user_name;
+				if (username == NULL || *username == '\0')
+					username = _("[unknown]");
 				append_json_literal(&buf,
 									Redislog_json_field_mapping[i].custom_field_name,
-									MyProcPort->user_name, true);
+									username, true);
+			}
 			break;
 
 		case FIELD_DATABASE_NAME:
 			/* Database name */
-			if (MyProcPort)
+			if (MyProcPort) {
+				const char *dbname = MyProcPort->database_name;
+				if (dbname == NULL || *dbname == '\0')
+					dbname = _("[unknown]");
 				append_json_literal(&buf,
 									Redislog_json_field_mapping[i].custom_field_name,
-									MyProcPort->database_name, true);
+									dbname, true);
+			}
 			break;
 
 		case FIELD_PROCESS_ID:
@@ -1224,9 +1232,13 @@ redis_log_hook(ErrorData *edata)
 
 		case FIELD_APPLICATION_NAME:
 			/* Application name */
-			if (application_name && application_name[0] != '\0')
+		    if (MyProcPort) {
+				const char *appname = application_name;
+				if (appname == NULL || *appname == '\0')
+					appname = _("[unknown]");
 				append_json_literal(&buf, Redislog_json_field_mapping[i].custom_field_name,
-									application_name, true);
+					appname, true);
+		    }
 			break;
 
 		case FIELD_MESSAGE:
